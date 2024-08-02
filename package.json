@@ -1,0 +1,20 @@
+{
+  "name": "youtube-project",
+  "version": "1.0.0",
+  "description": "learning to use youtube api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon -r dotenv/config index.js"
+  },
+  "dependencies": {
+    "axios": "x",
+    "dotenv": "^16.4.5",
+    "express": "x"
+  },
+  "devDependencies": {
+    "nodemon": "x"
+  },
+  "author": "",
+  "license": "ISC"
+}

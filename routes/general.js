@@ -1,5 +1,7 @@
 const express = require("express");
 const axios = require("axios");
+const jwt = require("jsonwebtoken");
+const conn = require("../database");
 
 const public_users = express.Router();
 
@@ -32,6 +34,7 @@ async function getPlaylistItems(playlistId, pageToken) {
 // Get all videos
 public_users.get("/videos", async function (req, res) {
   if (!playlist_id) {
+    console.log("called API");
     params = {
       key: api_key,
       part: "contentDetails",
@@ -57,6 +60,34 @@ public_users.get("/videos", async function (req, res) {
     console.error(err);
     res.status(500).send("Error fetching videos");
   }
+});
+
+public_users.post("/register", function (req, res) {
+  const username = req.query.username;
+  const password = req.query.password;
+  // Check if we received username and password
+  if (!username || !password) {
+    return res.status(400).send("No username or password provided");
+  }
+
+  // Check if the username already exists
+  conn.query(
+    `SELECT username FROM users
+    WHERE username == ${username}`,
+    function (err, res, fields) {
+      // There is no user
+      if (err) {
+        const sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+        const values = [username, password];
+        conn.query(sql, values, function (err, res) {
+          if (err) throw err;
+          console.log("added user");
+          return res.status(200).send("Added new user");
+        });
+      }
+      console.log(res);
+    },
+  );
 });
 
 module.exports = public_users;

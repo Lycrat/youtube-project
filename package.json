@@ -9,8 +9,14 @@
   },
   "dependencies": {
     "axios": "x",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "x"
+    "express": "x",
+    "express-session": "^1.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.11.0",
+    "session": "^0.1.0"
   },
   "devDependencies": {
     "nodemon": "x"

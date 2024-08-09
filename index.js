@@ -5,24 +5,36 @@ const public_routes = require("./routes/general");
 const session = require("express-session");
 const auth_users = require("./routes/auth_users");
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 const PORT = 8080;
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser(process.env.JWT_SECRET));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }),
+);
 app.use(
   "/private",
   session({
     secret: process.env.JWT_SECRET,
     resave: true,
     saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      sameSite: "none",
+    },
   }),
 );
 
 app.use("/private/auth/*", function (req, res, next) {
-  if (req.session.authorization) {
-    const token = req.session.authorization["accessToken"];
+  if (req.signedCookies.authorization) {
+    const token = JSON.parse(req.signedCookies.authorization)["accessToken"];
     jwt.verify(token, process.env.JWT_SECRET, function (err, user) {
       if (!err) {
         req.user = user;

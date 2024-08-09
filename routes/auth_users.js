@@ -8,9 +8,17 @@ auth_users.get("/auth/comment", function (req, res) {
   res.send("not yet implemented");
 });
 
+auth_users.get("/auth/session", function (req, res) {
+  if (!req.session) {
+    return res.send("NO SESSION FOUND");
+  }
+  res.send({ authorization: req.session.authorization });
+});
+
 auth_users.post("/login", function (req, res) {
   const username = req.body.username;
   const password = req.body.password;
+  console.log("triggered");
 
   if (!username || !password) {
     return res.send("Username or password not provided.");
@@ -28,7 +36,15 @@ auth_users.post("/login", function (req, res) {
         { expiresIn: 60 * 60 },
       );
       req.session.authorization = { accessToken, username };
-      return res.send(`user ${username} logged in`);
+      return res
+        .cookie("authorization", JSON.stringify(req.session.authorization), {
+          maxAge: 1000 * 60 * 60,
+          httpOnly: true,
+          signed: true,
+        })
+        .send(
+          `user ${username} logged in with session ${JSON.stringify(req.session.authorization)}`,
+        );
     } else {
       return res.send("No user in database.");
     }

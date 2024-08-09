@@ -1,9 +1,11 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./App.css";
-import VideoCard from "./components/Card";
-function App() {
+import "../App.css";
+import VideoCard from "../components/Card";
+import Navbar from "../components/Navbar";
+
+export default function Root() {
   const [videos, setVideos] = useState([]);
 
   useEffect(() => {
@@ -21,8 +23,8 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Vagrant Holiday Fan Club</h1>
-      <div class="row">
+      <Navbar />
+      <div class="row mx-2 my-2">
         {videos.map((video, i) => (
           <VideoCard video={video} />
         ))}
@@ -30,5 +32,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

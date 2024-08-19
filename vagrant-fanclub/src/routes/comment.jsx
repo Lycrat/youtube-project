@@ -1,14 +1,20 @@
 import axios from "axios";
+import { useState } from "react";
 
 export default function Comment() {
+  const [validated, setValidation] = useState(false);
   axios
     .get("http://localhost:8080/private/auth/comment", {
       withCredentials: true,
     })
     .then((res) => {
-      alert(JSON.stringify(res));
+      setValidation(true);
     })
     .catch((err) => alert(err));
 
-  return <h1>not yet implemented</h1>;
+  if (validated) {
+    return <h1>not yet implemented</h1>;
+  } else {
+    return <h1>User not authorized</h1>;
+  }
 }

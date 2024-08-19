@@ -41,11 +41,11 @@ app.use("/private/auth/*", function (req, res, next) {
         next();
       } else {
         console.log(err);
-        return res.send("This user is not authorized");
+        return res.status(401).send("This user is not authorized");
       }
     });
   } else {
-    return res.send("This user is not logged in");
+    return res.status(401).send("This user is not logged in");
   }
 });
 

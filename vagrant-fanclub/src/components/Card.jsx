@@ -5,22 +5,22 @@ function VideoCard(props) {
   }
   return (
     <div
-      class="col-3 overflow-hidden text-center my-2"
+      class="col-lg-3 col-md-4 col-sm-6 overflow-hidden text-center my-2"
       style={{ height: "400px" }}
     >
       <div class="card h-100">
         <div>
           <img
-            class="card-img"
+            class="card-img-top"
             src={video.snippet.thumbnails.medium.url}
             alt={video.snippet.title}
           />
         </div>
-        <div class="card-body">
+        <div class="card-body d-flex flex-column">
           <h5 class="card-title">{video.snippet.title}</h5>
           <hr class="hr" />
-          <div class="overflow-scroll h-30">
-            <p class="card-text overflow-scroll">{video.snippet.description}</p>
+          <div class="overflow-auto flex-grow-1" style={{ maxHeight: "100px" }}>
+            <p class="card-text">{video.snippet.description}</p>
           </div>
         </div>
         <a

@@ -37,7 +37,7 @@ export default function Login() {
         { withCredentials: true },
       )
       .then((response) => {
-        setLoggedUser(response.data);
+        setLoggedUser(`Successfully logged in ${response.data.user}`);
       })
       .catch((error) => {
         alert(error);

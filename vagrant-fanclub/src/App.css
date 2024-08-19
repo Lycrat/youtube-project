@@ -34,3 +34,19 @@
     background-color: blue;
     color: white;
 }
+
+#navLogo {
+    color: white;
+}
+
+#navLogo:hover {
+    color: black;
+}
+
+.navbar {
+    background-color: red;
+}
+
+.nav-link {
+    color: white;
+}

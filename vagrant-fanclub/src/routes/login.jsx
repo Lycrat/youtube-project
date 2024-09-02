@@ -1,11 +1,13 @@
 import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useState } from "react";
 
+const host = window.location.hostname;
 export default function Login() {
   const [loggedUser, setLoggedUser] = useState("Not logged in");
-
+  const nav = useNavigate();
   function CheckSession() {
     axios
       .get("http://localhost:8080/private/auth/session", {
@@ -29,7 +31,7 @@ export default function Login() {
 
     axios
       .post(
-        "http://localhost:8080/private/login",
+        `http://${host}:8080/private/login`,
         {
           username: username,
           password: password,
@@ -38,9 +40,10 @@ export default function Login() {
       )
       .then((response) => {
         setLoggedUser(`Successfully logged in ${response.data.user}`);
+        nav("/");
       })
       .catch((error) => {
-        alert(error);
+        console.log(error);
       });
   }
   const sessionAuth = Cookies.get("authorization");
@@ -50,7 +53,6 @@ export default function Login() {
   } else {
     return (
       <div id="login" class="Login">
-        <Navbar />
         <div class="mx-10 my-2 ">
           <small id="loggedInUserHelp" class="form-text text-muted">
             {loggedUser}
@@ -85,7 +87,7 @@ export default function Login() {
               />
             </div>
             <button type="submit" class="btn btn-primary">
-              Submit
+              Login
             </button>
           </form>
         </div>

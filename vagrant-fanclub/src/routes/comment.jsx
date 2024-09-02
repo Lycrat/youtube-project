@@ -10,7 +10,7 @@ export default function Comment() {
     .then((res) => {
       setValidation(true);
     })
-    .catch((err) => alert(err));
+    .catch((err) => console.log(err));
 
   if (validated) {
     return <h1>not yet implemented</h1>;

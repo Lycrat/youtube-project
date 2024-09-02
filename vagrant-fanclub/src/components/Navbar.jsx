@@ -2,53 +2,77 @@ import { useState, useRef } from "react";
 import axios from "axios";
 import { useEffect } from "react";
 import Button from "./Button";
-import SearchBar from "./SearchBar";
-export default function Navbar(props) {
-  const handleSearch = props.onSearch;
-  const handleOffset = props.onHeightChange;
+import { useVideoContext } from "../contexts/VideoContext";
+import { useNavigate } from "react-router-dom";
+export default function Navbar({ onHeightChange, children }) {
+  const handleOffset = onHeightChange;
   const [logDetails, setLogDetails] = useState(undefined);
-  const [searchQuery, setSearchQuery] = useState("");
-  const navbarRef = useRef(null);
 
+  const navbarRef = useRef(null);
+  const { setSearchQuery } = useVideoContext();
+  const { searchQuery } = useVideoContext() || "";
+
+  const nav = useNavigate();
+  let host = window.location.hostname;
   useEffect(() => {
     axios
-      .get("http://localhost:8080/private/auth/session", {
+      .get(`http://${host}:8080/private/auth/session`, {
         withCredentials: true,
       })
       .then((response) => {
         setLogDetails(JSON.parse(response.data));
       })
-      .catch((err) => {});
+      .catch((err) => {
+        console.log(err);
+      });
 
-    if (handleOffset) {
-      const updateNavbarHeight = () => {
-        if (navbarRef.current) {
-          const height = navbarRef.current.offsetHeight;
-          handleOffset(height);
-        }
-      };
+    const updateNavbarHeight = () => {
+      const height = navbarRef.current.offsetHeight;
+      document.documentElement.style.setProperty(
+        "--navbar-height",
+        `${height}px`,
+      );
+    };
 
-      updateNavbarHeight();
+    updateNavbarHeight();
 
-      window.addEventListener("resize", updateNavbarHeight);
+    window.addEventListener("resize", updateNavbarHeight);
 
-      return () => window.removeEventListener("resize", updateNavbarHeight);
-    }
-  }, [handleOffset]);
+    return () => window.removeEventListener("resize", updateNavbarHeight);
+  }, []);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    nav("/", { state: { searchQuery: e.target.elements.searchInput.value } });
+  };
 
   const handleInputChange = (e) => {
+    e.preventDefault();
     const query = e.target.value;
     setSearchQuery(query);
-    handleSearch(query);
+  };
+
+  const handleLogout = async () => {
+    axios
+      .get(`http://${host}:8080/private/auth/logout`, {
+        withCredentials: true,
+      })
+      .then(() => {
+        localStorage.removeItem("authorization");
+      })
+      .catch((e) => {
+        alert(e.toString());
+      });
+    window.location.reload();
   };
 
   function DisplayUser(props) {
     if (logDetails !== undefined) {
-      let href = "logout";
+      let href = "#";
       return (
         <div class="ms-auto col-gap-3">
           <span class="p-2 g-col-6"> User: {logDetails.username} </span>
-          <Button href={href} text={href} />
+          <Button href={href} text="logout" onClick={handleLogout} />
         </div>
       );
     } else {
@@ -60,10 +84,10 @@ export default function Navbar(props) {
     <body>
       <nav
         ref={navbarRef}
-        class="navbar navbar-expand-lg navbar-light px-3 fixed-top border-bottom border-light"
+        class="navbar navbar-expand-lg navbar-light px-3 fixed-top"
       >
         <a class="navbar-brand font-weight-bold" id="navLogo" href="/">
-          Vagrant Holiday Fanclub
+          Vagrant Holiday
         </a>
         <button
           class="navbar-toggler"
@@ -83,13 +107,9 @@ export default function Navbar(props) {
             <div class="row justify-content-md-center">
               <div class="col-lg-6 col-md-12">
                 <ul class="navbar-nav">
-                  <li class="nav-item active">
-                    <a class="nav-link" href="/">
-                      Home
-                    </a>
-                  </li>
+                  <li class="nav-item active"></li>
                   <li class="nav-item">
-                    <a class="nav-link" href="root">
+                    <a class="nav-link" href="/">
                       Vagrant Uploads
                     </a>
                   </li>
@@ -98,19 +118,28 @@ export default function Navbar(props) {
                       Community Uploads
                     </a>
                   </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="upload">
+                      Upload
+                    </a>
+                  </li>
                 </ul>
               </div>
               <div class="col-lg-3 col-md-9">
-                <form class="ms-auto input-group border border-dark rounded">
+                <form
+                  class="ms-auto input-group rounded"
+                  onSubmit={handleSearchSubmit}
+                >
                   <input
                     class="form-control mr-sm-2"
                     type="search"
                     placeholder="Search Videos"
                     onChange={handleInputChange}
-                    value={searchQuery}
                     aria-label="Search"
+                    name="searchInput"
+                    value={searchQuery}
                   />
-                  <button class="btn btn-light group-addon" type="submit">
+                  <button class="btn btn-dark group-addon" type="submit">
                     Search
                   </button>
                 </form>
@@ -122,6 +151,7 @@ export default function Navbar(props) {
           </div>
         </div>
       </nav>
+      {children}
     </body>
   );
 }

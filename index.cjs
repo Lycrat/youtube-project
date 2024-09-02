@@ -1,9 +1,10 @@
 const express = require("express");
 const axios = require("axios");
+const path = require("path");
 const cors = require("cors");
-const public_routes = require("./routes/general");
+const public_routes = require("./routes/general.cjs");
 const session = require("express-session");
-const auth_users = require("./routes/auth_users");
+const auth_users = require("./routes/auth_users.cjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 
@@ -14,10 +15,13 @@ app.use(express.json());
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    // origin: "http://localhost:3000",
+    origin: true,
     credentials: true,
   }),
 );
+
+app.use("/thumbnails", express.static(path.join(__dirname, "/thumbnails")));
 app.use(
   "/private",
   session({

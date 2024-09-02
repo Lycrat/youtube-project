@@ -7,23 +7,53 @@ import Root from "./routes/root";
 import Login from "./routes/login";
 import Comment from "./routes/comment";
 import Community from "./routes/community";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Video from "./routes/video";
+import Upload from "./routes/upload";
+import { VideoContextProvider } from "./contexts/VideoContext";
+import axios from "axios";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
+import Navbar from "./components/Navbar";
+
+let host = window.location.hostname;
+axios.defaults.baseURL = `http://${host}:8080`;
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />,
-  },
-  {
-    path: "login",
-    element: <Login />,
-  },
-  {
-    path: "comment",
-    element: <Comment />,
-  },
-  {
-    path: "community",
-    element: <Community />,
+    element: (
+      <VideoContextProvider>
+        <body>
+          <Navbar />
+          <Outlet />
+        </body>
+      </VideoContextProvider>
+    ),
+    children: [
+      {
+        path: "/",
+        element: <Root />,
+      },
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "comment",
+        element: <Comment />,
+      },
+      {
+        path: "community",
+        element: <Community />,
+      },
+      {
+        path: "video",
+        element: <Video />,
+      },
+      {
+        path: "upload",
+        element: <Upload />,
+      },
+    ],
   },
 ]);
 

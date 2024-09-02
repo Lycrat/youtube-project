@@ -1,8 +1,10 @@
+const fs = require("fs");
 const express = require("express");
 const axios = require("axios");
-const jwt = require("jsonwebtoken");
-const conn = require("../database");
-
+const conn = require("../database.cjs");
+const path = require("path");
+const { videoConn } = require("../database.cjs");
+const { streamVideo } = require("../utils/streamUtils.cjs");
 const public_users = express.Router();
 
 const api_key = process.env.YOUTUBE_API_KEY;
@@ -30,11 +32,46 @@ async function getPlaylistItems(playlistId, pageToken) {
     throw new Error("Failed fetching playlist items");
   }
 }
+// Get all community videos
+public_users.get("/community/videos", async (req, res) => {
+  const query = `SELECT videoJson from videos`;
+  videoConn.query(query, (err, rows) => {
+    if (err) {
+      return console.log(err);
+    }
+    res.json(rows);
+  });
+});
+// Stream a video
+public_users.get("/video/:id", async function (req, res) {
+  const videoName = req.params.id;
+  let cleanVidName = videoName.toLowerCase().trim();
+  const reg = new RegExp(cleanVidName, "i");
+  let matchedVidName = "";
+  let matchedDir = "videos";
+  const files = fs.readdirSync(path.join(__dirname, "..", "videos"));
+  files.forEach((file) => {
+    if (reg.test(file)) {
+      matchedVidName = file;
+    }
+  });
 
-// Get all videos
+  if (matchedVidName === "") {
+    const files = fs.readdirSync(path.join(__dirname, "..", "community"));
+    files.forEach((file) => {
+      if (reg.test(file)) {
+        matchedVidName = file;
+        matchedDir = "community";
+      }
+    });
+  }
+
+  const videoPath = path.join(__dirname, "..", matchedDir, `${matchedVidName}`);
+  streamVideo(videoPath, req, res);
+});
+// Get all vagrant videos
 public_users.get("/videos", async function (req, res) {
   if (!playlist_id) {
-    console.log("called API");
     params = {
       key: api_key,
       part: "contentDetails",
@@ -81,7 +118,6 @@ public_users.post("/register", function (req, res) {
         const values = [username, password];
         conn.query(sql, values, function (err, res) {
           if (err) throw err;
-          console.log("added user");
           return res.status(200).send("Added new user");
         });
       }
